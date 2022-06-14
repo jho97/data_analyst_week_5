@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 r = requests.get("https://butterfly-conservation.org/uk-butterflies/a-to-z", verify=False)
 
@@ -26,10 +27,18 @@ def get_butterfly(url):
     r = requests.get(url)
     soup = BeautifulSoup(r.text)
 
-h1 = soup.find("h1")
-# print(h1)
+    h1 = soup.find("h1")
+    # print(h1)
 
-name = h1.text
-# strip() will take off whitespace at the end
-name = name.strip() 
+    name = h1.text
+    # strip() will take off whitespace at the end
+    name = name.strip() 
+    family = soup.find("li", text = re.compile(r'Family:*'))
+    family_data = peel_data_from_element(family)
 
+    return {'name': name, 'family': family_data}
+
+
+def peel_data_from_element(element):
+    just_text = element.text
+    return just_text.split(': ')[1]
